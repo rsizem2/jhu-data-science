@@ -1,0 +1,36 @@
+---
+title: "Week 3: Plotly Example"
+author: "Robert Sizemore"
+date: "9/4/2019"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Scatterplot
+
+Below is a scatterplot of a variable y which depends linearly on a variable x along with some added normally distributed error terms:
+
+```{r, message=FALSE, echo=FALSE}
+library(plotly)
+set.seed(153)
+x = 1:100
+eps <- rnorm(100, mean = 0, sd = 5)
+y = x + eps
+plot_ly(x=x, y=y, mode = "markers")
+```
+
+## Histogram
+
+Now we look at a histogram of the added error terms:
+
+```{r, echo=FALSE}
+plot_ly(x = eps, type = "histogram")
+```
+
+
+## Thank You
+
+Thank you for reading.

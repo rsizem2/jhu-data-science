@@ -1,0 +1,68 @@
+---
+title: "Hands on Linear Regression using Interactive Plots"
+author: "Robert Sizemore"
+date: "9/7/2019"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## What Is the App?
+
+The LinearRegressionWithKnots app is a Shiny application which allows the user to explore the geometry of two-dimensional regression lines with an optional knot point.
+
+Some features include:
+
+- Clickable plot for adding points
+- Toggle to clear the plot
+- Toggle for a knot point
+- Slider to adjust knot point
+
+
+## Why Use the App?
+
+Linear regression is an invaluable tool in any statistician's arsenal. However, it is not always clear how adding data points affects the resulting regression line, especially in the case of knot points. This app allows the user to easily generate data points and view how new data changes the regression line in real-time, which can help build geometric intuition:
+
+```{r,out.height="25%",  fig.align="center"}
+par(mfrow=c(1,2), mar = c(4,3,1,1), oma = c(6,0,0,0))
+x=c(-1,-0.2,0,2); y=c(0,0.5,1,-1)
+plot(x[1:3],y[1:3],xlim=c(-3,3),ylim=c(-2,2),
+     xlab="",ylab="")
+abline(lm(y[1:3]~x[1:3]))
+plot(x,y,xlim=c(-3,3),ylim=c(-2,2),
+     xlab="",ylab="")
+abline(lm(x~y))
+
+```
+
+
+## Getting Started
+
+To get started using the app, go to the [shinyapps.io page](https://rsizem2.shinyapps.io/LinearRegressionWithKnots/) and click anywhere in the plot window. The app will detect your click and plot a point there as well as a least squares fit on the data points you've created so far:
+
+```{r,out.width ="66%", fig.align="center"}
+set.seed(153); data = runif(20,-80,80);
+x = data[1:10]; y = data[11:20]
+par(mar= c(4,4,2,1))
+plot(x, y, xlab = "", ylab = "", main = "",
+                 xlim = c(-100, 100), ylim = c(-75, 75))
+abline(lm(y~x))
+```
+
+
+At least three points are suggested to generate interesting plots
+
+
+## Other Features
+
+### Adding a Knot
+
+If you wish to see a least squares regression line fitted with a knot point, move the *scroller* to the desired x value and click the *button* which says "Toggle Knot". The app will then fit a piecewise linear least squares model with a knot point at selected value.
+
+### Clearing the Plot
+
+If you make a mistake or otherwise wish to start from scratch, click the *button* that says "Clear Points" to clear the plot window and start over.
+
+### Have Fun :^)

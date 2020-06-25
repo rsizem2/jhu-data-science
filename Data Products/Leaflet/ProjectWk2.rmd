@@ -1,0 +1,26 @@
+---
+title: "Leaflet App Example"
+author: "Robert Sizemore"
+date: "9/3/2019"
+output: html_document
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+In this document we demonstrate a very basic use of the Leaflet app by generating random markers on a map which are then automatically clustered based on the scale with which the user is viewing the map.
+
+## Map of Baton Rouge Area
+
+We populate the map with markers where the latitude lies in $(30.35,30.45)$ and the longitude lies in $(-91.25,-91.15)$, which corresponds to the area around Louisiana State University in Baton Rouge, Louisiana.
+
+```{r}
+library(leaflet)
+set.seed(153)
+df <- data.frame(lat = runif(500, min = 30.35, max = 30.45),
+                 lng = runif(500, min = -91.25, max = -91.15))
+df %>% 
+  leaflet() %>%
+  addTiles() %>%
+  addMarkers(clusterOptions = markerClusterOptions())
+```
