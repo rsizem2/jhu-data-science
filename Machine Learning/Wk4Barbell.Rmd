@@ -1,0 +1,140 @@
+---
+title: 'Coursera Project: Predicting Weight Lifting Technique'
+author: "Robert Sizemore"
+date: "9/6/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+
+```{r,message=FALSE}
+library(e1071)
+library(caret)
+library(dplyr)
+library(mlbench)
+```
+
+In this project, we look at data from 6 weightlifters performing dumbbell curls. According to the [data source](http://web.archive.org/web/20161224072740/http:/groupware.les.inf.puc-rio.br/har): "Six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E)." Their movements were recorded using accelerometers placed on the belt, forearm, arm, and the dumbbell itself. We want to predict the manner in which a participant performs a dumbbell curl based on data gathered from various sensors.
+
+## Data Processing
+
+We begin by downloading the training and testing sets:
+
+```{r download}
+url1 <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+url2 <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+if(!file.exists("training.csv")){
+    download.file(url1,"training.csv")
+}
+if(!file.exists("testing.csv")){
+    download.file(url2,"testing.csv")
+}
+training <- read.csv("training.csv",na.strings = c("","NA","#DIV/0!"))
+testing <- read.csv("testing.csv",na.strings = c("","NA","#DIV/0!"))
+#names(training)
+```
+
+The data we're given is recorded from 4 different sensors: one on the belt, one on the arm, one on the wrist and one mounted on a dumbbell. Each sensor has a gyroscope, accelerometer, and magnetometer from which measurements are done along each Cartesian direction, as well as a magnitude and variance measure of total acceleration. For each sensor, the the raw pitch, yaw and roll are recorded as well as 8 features that are calculated on these angles: mean, variance, standard deviation, max, min, amplitude, kurtosis and skewness. 
+
+## Feature Selection
+
+Before we use our data to train the models, we have to address missing values and redundant features. For some features up to 93% of the values are missing, and the values that aren't missing correspond exactly to those observations with new_window = "yes". So, we have to consider either imputing values or removing these features from consideration. Since such a high percentage is missing it seems more prudent to remove than to attempt to estimate over 90% of the values. Furthermore, these features are missing or NA for the examples we intend to predict, so there is no harm in removing them
+
+```{r na}
+training <- subset(training, new_window = "no")
+tclasses <- training$classe
+training <- mutate_all(training[,8:159],
+                       function(x) as.numeric(as.character(x)))
+testing  <- mutate_all(testing[,8:159],
+                       function(x) as.numeric(as.character(x))) 
+percentna <- apply(training,2,function(x){sum(is.na(x))/length(x)})
+na_any <- names(percentna[percentna > 0])
+ind <- names(percentna) %in% na_any
+train0 <- training[,!ind]
+test0 <- testing[,!ind]
+dim(train0)
+```
+
+Next, we want to remove highly correlated variables as some of them may be redundant. We use the findCorrelation function, which returns indices of features with correlation above a cutoff. Since these variables come in pairs, the function uses the mean absolute correlation to tie break:
+
+```{r features}
+corMat <- cor(train0)
+highcor <- findCorrelation(corMat, cutoff = 0.75)
+train0 <- train0[,-highcor]
+dim(train0)
+```
+
+Hence, we have reduced 160 features down to 31 which should greatly reduce the training time and hopefully result in good models.
+
+## Training
+
+Our goal is to build a classification model with which we can assign test examples to one of 5 classes: A,B,C,D,E. Where class A indicates performing the exercise correctly and B-E represent various ways of performing them incorrectly. 
+
+We will try three different classifiers and pick the best performing one. The models we consider are:
+
+* KNN Classifier
+* Linear Discriminant Analysis
+* Random Forest
+
+For the KNN classifier we pass an argument telling the train function to do a 10-fold cross validation on the training data set:
+
+```{r knn, cache=TRUE}
+x <- train0
+y <- factor(tclasses)
+set.seed(1530)
+ctrl <- trainControl(method = "cv", number = 10)
+fit.knn <- train(x,y, method = "knn", trControl = ctrl)
+```
+
+Next, we fit an LDA classifier, again telling R to do a 10-fold cross validation:
+
+```{r lda, cache=TRUE}
+set.seed(1530)
+fit.lda <- train(x,y, method = "lda", trControl = ctrl)
+```
+
+Finally, we build a random forest model:
+
+```{r tree, cache=TRUE}
+set.seed(1530)
+fit.rf <- train(x,y, method = "rf")
+```
+
+## Assessment
+
+For each of these models we either explicitly told the train function to perform 10-fold cross-validation or in the case of random forests, resampling is inherent to process of fitting the model:
+
+```{r model, cache = TRUE}
+model.knn <- fit.knn$finalModel
+model.lda <- fit.lda$finalModel
+model.rf <- fit.rf$finalModel
+```
+
+The train function aggregates the confusion matrices for the hold-out samples of the training data, which we can use for estimating the accuracy and therefore the out-of-sample error:
+
+```{r confusion, cache=TRUE}
+confusionMatrix(fit.knn)
+confusionMatrix(fit.lda)
+confusionMatrix(fit.rf)
+```
+
+The LDA classifier has only about 59% accuracy, which is rather poor performance. The KNN classifier has about 89% accuracy on the hold-out samples and the random forest classifier has about 99% accuracy. We choose the random forest model for our predictions since it is the most accurate by far. We would expect based on the average accuracy on the validation sets used during cross validation that this algorithm would have less than but close to 99% accuracy on new samples. Our estimate for out-of-sample error rate is around 1% or slightly larger.
+
+## Predictions
+
+We use the random forest model for our predictions since it is the most accurate:
+
+```{r predict, cache=TRUE}
+predict(fit.rf,test0)
+```
+
+### References
+
+* Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013. 
+
+* Gareth, J.; Witten, D.; Hastie, T. Tibshirani, R. An Introduction to Statistical Learning with Applications in R. Springer (2017). 8th Printing.
+
