@@ -1,9 +1,7 @@
 # README
-All of my publicly submitted coursework from the JHU Data Science specialization sequence on Coursera done between June 2019 and January 2020. I wanted to put all of this under one repository to clean everything up a bit. Might do a bit of cleaning up files and renaming things in the future.
+My submitted coursework from the [JHU Data Science specialization](https://github.com/DataScienceSpecialization) sequence on Coursera done between June 2019 and January 2020. I wanted to put all of this under one repository to clean everything up a bit. I may clean up or edit some of the files in the future. 
 
 # Courses
-
-Most subfolders have their own README explaining their contents.
 
 * Data Scientist's Toolbox - the 1st course in the sequence. No submitted work.
 * R Programming - the 2nd course in the sequence.
