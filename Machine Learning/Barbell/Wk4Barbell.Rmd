@@ -1,40 +1,36 @@
 ---
-title: 'Coursera Project: Predicting Weight Lifting Technique'
-author: "Robert Sizemore"
-date: "9/6/2019"
-output: html_document
+title: 'Project: Predicting Weight Lifting Technique'
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Overview
+In this project, we look at data from 6 weightlifters performing dumbbell curls. According to the [data source](http://web.archive.org/web/20161224072740/http:/groupware.les.inf.puc-rio.br/har): "Six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E)." Their movements were recorded using accelerometers placed on the belt, forearm, arm, and the dumbbell itself. We want to predict the manner in which a participant performs a dumbbell curl based on data gathered from various sensors.
 
-```{r,message=FALSE}
+## Data Processing
+
+```{r,message=FALSE,warning=FALSE}
 library(e1071)
 library(caret)
 library(dplyr)
 library(mlbench)
 ```
 
-In this project, we look at data from 6 weightlifters performing dumbbell curls. According to the [data source](http://web.archive.org/web/20161224072740/http:/groupware.les.inf.puc-rio.br/har): "Six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E)." Their movements were recorded using accelerometers placed on the belt, forearm, arm, and the dumbbell itself. We want to predict the manner in which a participant performs a dumbbell curl based on data gathered from various sensors.
-
-## Data Processing
-
 We begin by downloading the training and testing sets:
 
 ```{r download}
 url1 <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
 url2 <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
-if(!file.exists("training.csv")){
-    download.file(url1,"training.csv")
+if(!file.exists("data/training.csv")){
+    download.file(url1,"data/training.csv")
 }
 if(!file.exists("testing.csv")){
-    download.file(url2,"testing.csv")
+    download.file(url2,"data/testing.csv")
 }
-training <- read.csv("training.csv",na.strings = c("","NA","#DIV/0!"))
-testing <- read.csv("testing.csv",na.strings = c("","NA","#DIV/0!"))
+training <- read.csv("data/training.csv",na.strings = c("","NA","#DIV/0!"))
+testing <- read.csv("data/testing.csv",na.strings = c("","NA","#DIV/0!"))
 #names(training)
 ```
 
@@ -82,7 +78,7 @@ We will try three different classifiers and pick the best performing one. The mo
 
 For the KNN classifier we pass an argument telling the train function to do a 10-fold cross validation on the training data set:
 
-```{r knn, cache=TRUE}
+```{r knn}
 x <- train0
 y <- factor(tclasses)
 set.seed(1530)
@@ -92,7 +88,7 @@ fit.knn <- train(x,y, method = "knn", trControl = ctrl)
 
 Next, we fit an LDA classifier, again telling R to do a 10-fold cross validation:
 
-```{r lda, cache=TRUE}
+```{r lda}
 set.seed(1530)
 fit.lda <- train(x,y, method = "lda", trControl = ctrl)
 ```
@@ -108,7 +104,7 @@ fit.rf <- train(x,y, method = "rf")
 
 For each of these models we either explicitly told the train function to perform 10-fold cross-validation or in the case of random forests, resampling is inherent to process of fitting the model:
 
-```{r model, cache = TRUE}
+```{r model}
 model.knn <- fit.knn$finalModel
 model.lda <- fit.lda$finalModel
 model.rf <- fit.rf$finalModel
@@ -116,7 +112,7 @@ model.rf <- fit.rf$finalModel
 
 The train function aggregates the confusion matrices for the hold-out samples of the training data, which we can use for estimating the accuracy and therefore the out-of-sample error:
 
-```{r confusion, cache=TRUE}
+```{r confusion}
 confusionMatrix(fit.knn)
 confusionMatrix(fit.lda)
 confusionMatrix(fit.rf)
@@ -128,7 +124,7 @@ The LDA classifier has only about 59% accuracy, which is rather poor performance
 
 We use the random forest model for our predictions since it is the most accurate:
 
-```{r predict, cache=TRUE}
+```{r predict}
 predict(fit.rf,test0)
 ```
 

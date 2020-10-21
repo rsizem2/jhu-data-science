@@ -1,12 +1,11 @@
 ---
 title: 'Exploratory Analysis: Course Project'
-output: 
-  html_document:
-    keep_md: true
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
 ```
 
 ## Preparing Data/Libraries
@@ -14,12 +13,11 @@ knitr::opts_chunk$set(echo = TRUE)
 For this analysis, we are going to use dplyr to manipulate or data and the base plotting system to make our exploratory plots.
 
 ```{r}
-library(dplyr)
 NEI <- readRDS("exdata_data_NEI_data/summarySCC_PM25.rds")
 SCC <- readRDS("exdata_data_NEI_data/Source_Classification_Code.rds")
 ```
 
-## Have total emissions from PM2.5 decreased in the United States from 1999 to 2008? Using the base plotting system, make a plot showing the total PM2.5 emission from all sources for each of the years 1999, 2002, 2005, and 2008.
+## Have total emissions from PM2.5 decreased in the United States from 1999 to 2008? 
 
 To check this, we make a boxplot of total emissions for each of the years 1999, 2002, 2005 and 2008. We look at the log of the values since the order of magnitude varies greatly 
 
@@ -34,7 +32,7 @@ barplot(totalpm25, names.arg = years, main = "Total PM2.5 per year in the US", y
 
 It appears that the median values have dropped since 1999, however from 2002-2008 there is not a noticeable drop.
     
-## Have total emissions from PM2.5 decreased in the Baltimore City, Maryland (fips == "24510") from 1999 to 2008? Use the base plotting system to make a plot answering this question.
+## Have total emissions from PM2.5 decreased in the Baltimore City, Maryland (fips == "24510") from 1999 to 2008? 
 
 ```{r}
 years <- levels(as.factor(NEI$year))
@@ -47,7 +45,7 @@ barplot(baltpm25, names.arg = years, main = "Total PM2.5 per year in Baltimore",
 
 We can see from the boxplots that the bulk of the emissions readings have lowered over the years.
 
-## Of the four types of sources indicated by the type (point, nonpoint, onroad, nonroad) variable, which of these four sources have seen decreases in emissions from 1999–2008 for Baltimore City? Which have seen increases in emissions from 1999–2008? Use the ggplot2 plotting system to make a plot answer this question.
+## Of the four types of sources indicated by the type (point, nonpoint, onroad, nonroad) variable, which of these four sources have seen decreases in emissions from 1999-2008 for Baltimore City? Which have seen increases in emissions from 1999-2008?
 
 ```{r}
 library(ggplot2)
@@ -67,9 +65,9 @@ ggplot(balttype, aes(x=factor(year), y= pm25)) + geom_bar(stat="identity") + fac
 
 It appears that each type has seen a drop in it's median over the years, with the point type being the most drastic, the other types the decrease is more subtle.
 
-## Across the United States, how have emissions from coal combustion-related sources changed from 1999–2008?
+## Across the United States, how have emissions from coal combustion-related sources changed from 1999-2008?
 
-We use grep on the Short.Name variable to determine which SCC codes refer to coal combustion sources, then subset our NEI data using thesee codes. We look at only the data where the log lies between 0 and 2, which contains the bulk of the measurements
+We use grep on the Short.Name variable to determine which SCC codes refer to coal combustion sources, then subset our NEI data using these codes. We look at only the data where the log lies between 0 and 2, which contains the bulk of the measurements
 
 ```{r}
 years <- levels(as.factor(NEI$year))
@@ -83,7 +81,7 @@ coalpm25 <- sapply(years,function(x){
 barplot(coalpm25, names.arg = years, main = "Emissions from Coal Sources", ylab = "Total PM2.5 (Tons)", xlab = "Year")
 ```
     
-## How have emissions from motor vehicle sources changed from 1999–2008 in Baltimore City?
+## How have emissions from motor vehicle sources changed from 1999-2008 in Baltimore City?
 
 ```{r}
 years <- levels(as.factor(NEI$year))

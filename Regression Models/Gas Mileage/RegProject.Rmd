@@ -1,15 +1,14 @@
 ---
-title: "Regression Models Final Project: Exploring the Effects of Transmission Type on Gas Mileage."
-author: "Robert Sizemore"
-date: "9/9/2019"
-output: pdf_document
+title: "Project: Exploring the Effects of Transmission Type on Gas Mileage."
+#author: "Robert Sizemore"
+#date: "9/9/2019"
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.align = "center", out.width = "75%")
 ```
 
-## Summary
 
 In this document, we examine a dataset extracted from the 1974 Motor Trend magazine which contains data on 32 different automobiles from the 1973-74 era. We were primarily interested in studying the effects of transmission type on gas mileage. We noticed that as a group, automatic vehicles tend to have better gas mileage than manual transmissions cars, the average automatic car gets about 7 miles per gallon more than the average manual transmission car. However, manual cars also tend to weigh more, have more cylinders, and output more horsepower among other differences. When we adjusted for these differences, the transmission type does not seem to make a significant difference on the gas mileage. This suggests that if you wish to pick a car with better gas mileage you may do better to pick a lightweight car with fewer cylinders, instead of focusing on the transmission type. We detail these findings in subsequent sections.
 

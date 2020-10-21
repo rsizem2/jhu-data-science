@@ -1,7 +1,7 @@
 rankall <- function(outcome, num = "best") {
     ## Read outcome data
     validoutcomes <- c("heart attack", "heart failure", "pneumonia")
-    data1 <- read.csv("outcome-of-care-measures.csv", colClasses = "character")
+    data1 <- read.csv("data/outcome-of-care-measures.csv", colClasses = "character")
     ## Check that state and outcome are valid
     if (!is.element(outcome, validoutcomes)) {
         stop("invalid outcome")

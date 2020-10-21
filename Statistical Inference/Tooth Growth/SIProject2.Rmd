@@ -1,8 +1,8 @@
 ---
 title: 'Exploring the ToothGrowth Dataset'
-author: "Robert Sizemore"
-date: "9/4/2019"
-output: pdf_document
+#author: "Robert Sizemore"
+#date: "9/4/2019"
+output: github_document
 ---
 
 ```{r setup, include=FALSE}

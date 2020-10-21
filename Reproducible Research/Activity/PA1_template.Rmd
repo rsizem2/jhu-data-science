@@ -1,19 +1,20 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+output: github_document
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(messages = FALSE, warning = FALSE)
+library(dplyr, warn.conflicts = FALSE)
 
-## Loading and preprocessing the data
+# Suppress summarise info
+options(dplyr.summarise.inform = FALSE)
+```
 
-We're going to primarily use the dplyr package for our analysis.
+For this analysis we're primarily going to use the dplyr package.
 
-```{r preprocessing,results="hide"}
-library(dplyr)
-setwd("~/Documents/git/RepData_PeerAssessment1")
-activity <- tbl_df(read.csv("activity.csv"))
+```{r preprocessing, results="hide"}
+activity <- as_tibble(read.csv("data/activity.csv"))
 ```
 
 
@@ -21,11 +22,10 @@ activity <- tbl_df(read.csv("activity.csv"))
 
 We group the data by date and compute at the total number of steps per day:
 
-```{r}
+```{r, results=FALSE}
 by_date <- activity %>%
     group_by(date) %>%
     summarize(total_steps = sum(steps, na.rm = TRUE))
-
 ```
 
 From this we can compute the mean number of steps per day:
@@ -44,7 +44,7 @@ median(by_date$total_steps)
 
 To examine the average daily activity patterns, we start by grouping the data by interval and average the number of steps taken over each day:
 
-```{r}
+```{r, results = FALSE}
 by_interval <- activity %>%
     group_by(interval) %>%
     summarize(average_steps = mean(steps, na.rm = TRUE))
@@ -78,11 +78,9 @@ sum(activity$contains_na)
 All the NA values correspond to intervals for which we are missing step data. We fill in these missing values by replacing NA with the corresponding value from avgsteps:
 
 ```{r}
-head(by_interval)
-new_data <- mutate(activity, steps = as.double(steps))
-new_data$avg_steps <- by_interval$average_steps
-new_data <- mutate(new_data, steps = if_else(is.na(steps),avg_steps,steps))
-
+new_data <- mutate(activity, steps = as.double(steps)) %>%
+  left_join(by_interval, by = "interval") %>%
+  mutate(steps = if_else(is.na(steps),average_steps,steps))
 ```
 
 
@@ -127,7 +125,7 @@ imputed_data <- mutate(imputed_data, day_type = if_else(weekdays(date) ==  "Satu
 
 We use this new column to compare activity on weekends to weekdays. First, we separate our data based on this new factor variable:
 
-```{r}
+```{r, results = FALSE}
 weekend <- imputed_data %>%
   filter(day_type == "weekend") %>%
     group_by(interval) %>%
